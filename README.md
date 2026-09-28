@@ -9,11 +9,11 @@
 
 ## 🌟 Key Features
 
-### 🩺 1. Medical Certificate & Form Editor
-- Pre-loaded interactive template for the **Reliance Family Clinics Sick Leave Certificate**.
-- Click/tap any underlined field to edit (Patient Name, Age, Clinic Consultation Dates, Leave Period, Doctor Name).
-- Integrated handwritten script typography (`Dancing Script` / `Caveat`) to seamlessly match authentic signatures.
-- Clean vector clinic cross logo and doctor's pen signature pre-configured.
+### 🩺 1. Form Editor
+- Pre-loaded interactive template
+- Click/tap any underlined field to edit 
+- Integrated handwritten script typography (`Dancing Script` / `Caveat`) to seamlessly match
+- Clean vector clinic cross logo 
 - One-click **Print / Save as PDF** (`Ctrl + P` auto-cleans UI elements).
 
 ### 📑 2. PDF Editor & Annotator
@@ -22,7 +22,6 @@
 - **Whiteout Box Tool**: Draw opaque white rectangles over existing text to redact or prepare for replacement.
 - **Text Overlay Tool**: Add custom text annotations with precise placement.
 - **Pen & Drawing Tool**: Freehand markup and line drawings.
-- **Digital Signature Stamp**: Apply drawn signatures directly onto any PDF page.
 - Export as high-resolution annotated PDF.
 
 ### 📝 3. Word DOCX Editor
@@ -42,11 +41,6 @@
 - **Pen & Draw Tool**: Annotate or highlight areas.
 - **90° Rotation & History Undo**: Easily adjust orientation and revert mistakes.
 - Export as PNG or convert image directly to PDF.
-
-### 🖋️ 5. Digital Signature Pad
-- Built-in signature modal with smooth touch and stylus support.
-- Draw signatures on mobile, tablet, or desktop.
-- Apply signatures seamlessly to Certificates, PDFs, Word documents, or Images.
 
 ---
 
