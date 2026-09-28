@@ -88,7 +88,7 @@
       <div class="no-print w-full max-w-[760px] flex items-center justify-between bg-white px-4 py-2.5 rounded-lg border border-slate-200 mb-6 shadow-sm">
         <div class="flex items-center gap-2">
           <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Template:</span>
-          <span class="text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">Blank Certificate</span>
+          <span class="text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">Random Medical Template</span>
         </div>
         <div class="flex items-center gap-2">
           <button onclick="app.certEditor.reset()" class="tool-btn text-xs">
@@ -104,13 +104,75 @@
       </div>
 
       <!-- Certificate Paper Sheet -->
-      <div id="cert-sheet" class="paper-sheet w-full max-w-[760px] p-10 sm:p-14 border border-slate-200 text-slate-900 leading-relaxed relative min-h-[600px] flex items-center justify-center">
+      <div id="cert-sheet" class="paper-sheet w-full max-w-[760px] p-10 sm:p-14 border border-slate-200 text-slate-900 leading-relaxed relative">
         
-        <!-- Empty State Prompt -->
-        <div class="text-center">
-          <i class="fa-solid fa-file-pen text-4xl text-slate-300 mb-4"></i>
-          <p class="text-slate-400 text-sm mb-2">Start creating your certificate</p>
-          <p class="text-slate-300 text-xs">Click in the sheet to begin adding content</p>
+        <!-- Header -->
+        <div class="flex items-start gap-4 mb-8">
+          <div class="w-14 h-14 rounded-full bg-gradient-to-br from-sky-500 to-cyan-600 flex items-center justify-center text-white text-2xl font-bold mt-1 flex-shrink-0">H</div>
+          <div>
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Harbor Care Clinic</h2>
+            <div class="text-xs text-slate-800 leading-relaxed mt-1">
+              <p>Address: 14 Palm Grove Avenue, Lekki, Lagos.</p>
+              <p>Phone: 0802 444 9001</p>
+              <p>Email: hello@harborcareclinic.com</p>
+              <p>Website: www.harborcareclinic.com</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Salutation -->
+        <div class="font-extrabold text-sm mb-5 text-slate-900 uppercase tracking-wide">
+          TO WHOM IT MAY CONCERN,
+        </div>
+
+        <!-- Document Title -->
+        <div class="text-center font-extrabold text-base underline text-blue-600 tracking-wider mb-7">
+          MEDICAL CERTIFICATE
+        </div>
+
+        <!-- Body Paragraph 1 -->
+        <div class="text-sm leading-loose mb-1 text-slate-900">
+          This is to certify that Mr./Mrs./Ms.
+          <span class="editable-field min-w-[340px]" contenteditable="true" data-default="Aisha Bello">Aisha Bello</span>
+        </div>
+
+        <!-- Body Paragraph 2 -->
+        <div class="text-sm leading-loose mb-1 text-slate-900">
+          aged <span class="editable-field min-w-[36px] text-center" contenteditable="true" data-default="29">29</span>
+          years, was examined and treated at Harbor Care Clinic on the
+          <span class="editable-field min-w-[32px] text-center" contenteditable="true" data-default="12">12</span> day
+        </div>
+
+        <!-- Body Paragraph 3 -->
+        <div class="text-sm leading-loose mb-6 text-slate-900">
+          of <span class="editable-field min-w-[110px] text-center" contenteditable="true" data-default="October">October</span>,
+          <span class="editable-field min-w-[50px] text-center" contenteditable="true" data-default="2026">2026</span>
+        </div>
+
+        <!-- Diagnosis Clause -->
+        <div class="text-sm leading-loose mb-6 text-slate-900">
+          Following clinical evaluation, the above-named patient was diagnosed with a medical condition requiring rest and care from
+          <span class="editable-field min-w-[110px] text-center" contenteditable="true" data-default="08/10/2026">08/10/2026</span> to
+          <span class="editable-field min-w-[110px] text-center" contenteditable="true" data-default="15/10/2026">15/10/2026</span> (inclusive).
+        </div>
+
+        <!-- Recovery Advisory -->
+        <div class="text-sm leading-loose mb-12 text-slate-900">
+          It is advised that the patient avoids strenuous activity and resumes duties only after full recovery.
+        </div>
+
+        <!-- Footer / Signatures -->
+        <div class="flex items-baseline justify-between mt-12 pt-4">
+          <div class="flex items-baseline gap-2 text-sm text-slate-900">
+            <span class="whitespace-nowrap">Doctor's Name:</span>
+            <span class="editable-field min-w-[180px]" contenteditable="true" data-default="Dr. Nneka Okafor">Dr. Nneka Okafor</span>
+          </div>
+          <div class="flex items-baseline gap-2 text-sm text-slate-900">
+            <span class="whitespace-nowrap">Doctor's Signature:</span>
+            <div class="relative inline-block w-[190px] h-[2px] align-baseline">
+              <img id="cert-sig-img" src="assets/signature.png" alt="Signature" class="absolute left-0 -top-10 w-[190px] h-auto pointer-events-none select-none">
+            </div>
+          </div>
         </div>
 
       </div>
