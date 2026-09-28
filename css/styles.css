@@ -1,16 +1,36 @@
-/* OmniDoc Studio Custom Styles */
+/* OmniDoc Studio - Modern, Sleek, Universal Document Editor Styles */
 
 :root {
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
-  --bg-canvas: #f1f5f9;
-  --paper-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --primary-light: #eff6ff;
+  --bg-canvas: #f8fafc;
+  --paper-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  --paper-shadow-hover: 0 10px 30px -5px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--bg-canvas);
   color: #1e293b;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Handwriting Fonts */
+.font-handwriting {
+  font-family: 'Caveat', 'Dancing Script', cursive;
+}
+.font-signature-1 {
+  font-family: 'Dancing Script', cursive;
+}
+.font-signature-2 {
+  font-family: 'Caveat', cursive;
+}
+.font-signature-3 {
+  font-family: 'Great Vibes', cursive;
+}
+.font-serif-formal {
+  font-family: 'Playfair Display', Georgia, serif;
 }
 
 /* Scrollbar Styling */
@@ -33,41 +53,67 @@ body {
 .paper-sheet {
   background: #ffffff;
   box-shadow: var(--paper-shadow);
-  border-radius: 4px;
-  transition: all 0.2s ease;
+  border-radius: 6px;
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+  position: relative;
 }
 
-/* Editable Fields */
+/* Editable Fields - Click & Edit Directly */
 .editable-field {
   display: inline-block;
-  border-bottom: 1.5px solid #000;
+  border-bottom: 1.5px dashed #94a3b8;
   outline: none;
-  min-width: 24px;
-  padding: 0 4px 1px;
-  font-family: 'Segoe Script', 'Dancing Script', 'Caveat', cursive;
-  font-size: 15.5px;
+  min-width: 32px;
+  padding: 1px 6px;
+  font-family: inherit;
   color: #0f172a;
   cursor: text;
   transition: all 0.15s ease;
+  border-radius: 3px;
   position: relative;
+}
+
+.editable-field.handwritten {
+  font-family: 'Caveat', 'Dancing Script', cursive;
+  font-size: 1.15em;
+  color: #1e3a8a;
+  border-bottom-color: #3b82f6;
 }
 
 .editable-field:hover {
   background-color: #fef3c7;
-  box-shadow: 0 0 0 2px #f59e0b;
-  border-radius: 3px;
+  border-bottom: 1.5px solid #d97706;
+  box-shadow: 0 0 0 2px #fde68a;
 }
 
 .editable-field:focus {
-  background-color: #dcfce7;
-  box-shadow: 0 0 0 2px #10b981;
-  border-radius: 3px;
+  background-color: #ecfdf5;
+  border-bottom: 2px solid #059669;
+  box-shadow: 0 0 0 3px #a7f3d0;
+}
+
+/* Editable block elements (headers, titles, addresses) */
+.editable-block {
+  outline: none;
+  border-radius: 4px;
+  padding: 2px 4px;
+  transition: all 0.15s ease;
+  cursor: text;
+}
+.editable-block:hover {
+  background-color: #fef9c3;
+  outline: 1.5px dashed #ca8a04;
+}
+.editable-block:focus {
+  background-color: #f0fdf4;
+  outline: 2px solid #16a34a;
 }
 
 /* Toolbar Buttons */
 .tool-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   padding: 6px 12px;
   font-size: 13px;
@@ -78,18 +124,27 @@ body {
   color: #334155;
   transition: all 0.15s ease;
   cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
 }
 
 .tool-btn:hover {
   background: #f8fafc;
   border-color: #cbd5e1;
   color: #0f172a;
+  transform: translateY(-1px);
+}
+
+.tool-btn:active {
+  transform: translateY(0);
 }
 
 .tool-btn.active {
   background: #eff6ff;
   border-color: #3b82f6;
   color: #1d4ed8;
+  font-weight: 600;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
 .tool-btn-primary {
@@ -104,21 +159,62 @@ body {
   color: #ffffff;
 }
 
-/* Canvas Overlay Container */
+.tool-btn-success {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+}
+
+.tool-btn-success:hover {
+  background: #059669;
+  border-color: #059669;
+  color: #ffffff;
+}
+
+/* Navigation Tabs */
+.nav-tab {
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s ease;
+}
+.nav-tab.active {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+}
+
+/* Drop Zone */
+.drop-zone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 40px 24px;
+  text-align: center;
+  transition: all 0.2s ease;
+  background: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+.drop-zone:hover, .drop-zone.dragover {
+  border-color: #2563eb;
+  background: #f0f7ff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+}
+
+/* Canvas Viewport Containers */
 .canvas-wrapper {
   position: relative;
   overflow: auto;
-  max-height: 80vh;
+  max-height: 82vh;
   display: flex;
   justify-content: center;
-  padding: 20px;
+  padding: 24px;
 }
 
 .pdf-page-container {
   position: relative;
-  margin-bottom: 24px;
   box-shadow: var(--paper-shadow);
   background: white;
+  margin: 0 auto;
 }
 
 .annotation-layer {
@@ -128,9 +224,88 @@ body {
   pointer-events: auto;
 }
 
-/* Rich Text Editor */
+/* Interactive Floating Text Overlays (PDF & Image Editors) */
+.inline-text-overlay {
+  position: absolute;
+  min-width: 140px;
+  min-height: 36px;
+  padding: 4px 8px;
+  background: transparent;
+  border: 1.5px dashed #3b82f6;
+  border-radius: 4px;
+  cursor: move;
+  z-index: 30;
+  user-select: text;
+}
+
+.inline-text-overlay.whiteout-bg {
+  background: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.inline-text-overlay.selected {
+  border: 2px solid #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+.inline-text-input {
+  width: 100%;
+  min-height: 28px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  color: #000000;
+  cursor: text;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.inline-text-toolbar {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #1e293b;
+  color: #ffffff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+  z-index: 40;
+}
+
+.inline-text-toolbar button {
+  background: transparent;
+  color: #f8fafc;
+  border: none;
+  padding: 2px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.inline-text-toolbar button:hover {
+  background: #334155;
+}
+
+.inline-text-toolbar select {
+  background: #334155;
+  color: #ffffff;
+  border: none;
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-size: 11px;
+  outline: none;
+}
+
+/* Rich Text WYSIWYG Editor */
 .wysiwyg-content {
-  min-height: 500px;
+  min-height: 540px;
   outline: none;
   font-family: 'Times New Roman', Times, serif;
   font-size: 16px;
@@ -138,29 +313,34 @@ body {
   color: #1e293b;
 }
 
-.wysiwyg-content h1 { font-size: 28px; font-weight: bold; margin-bottom: 16px; }
-.wysiwyg-content h2 { font-size: 22px; font-weight: bold; margin-bottom: 12px; }
-.wysiwyg-content h3 { font-size: 18px; font-weight: bold; margin-bottom: 8px; }
+.wysiwyg-content h1 { font-size: 26px; font-weight: 700; margin-bottom: 16px; color: #0f172a; }
+.wysiwyg-content h2 { font-size: 20px; font-weight: 700; margin-bottom: 12px; color: #1e293b; }
+.wysiwyg-content h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; color: #334155; }
 .wysiwyg-content p { margin-bottom: 12px; }
 .wysiwyg-content ul { list-style-type: disc; margin-left: 24px; margin-bottom: 12px; }
 .wysiwyg-content ol { list-style-type: decimal; margin-left: 24px; margin-bottom: 12px; }
 .wysiwyg-content table { border-collapse: collapse; width: 100%; margin-bottom: 16px; }
 .wysiwyg-content td, .wysiwyg-content th { border: 1px solid #cbd5e1; padding: 8px 12px; }
+.wysiwyg-content th { background-color: #f8fafc; font-weight: 600; }
 
-/* Drag and Drop Zone */
-.drop-zone {
-  border: 2px dashed #cbd5e1;
-  border-radius: 8px;
-  padding: 40px 20px;
-  text-align: center;
-  transition: all 0.2s ease;
-  background: #f8fafc;
+/* Template Selector Cards */
+.template-card {
   cursor: pointer;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: white;
+  transition: all 0.15s ease;
 }
-
-.drop-zone:hover, .drop-zone.dragover {
-  border-color: #3b82f6;
-  background: #eff6ff;
+.template-card:hover {
+  border-color: #93c5fd;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+.template-card.active {
+  border-color: #2563eb;
+  background-color: #eff6ff;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
 /* Print Styles */
@@ -176,11 +356,17 @@ body {
     box-shadow: none !important;
     border: none !important;
     padding: 0 !important;
+    margin: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
   }
-  .editable-field:hover, .editable-field:focus {
+  .editable-field, .editable-block {
+    border-bottom: none !important;
     background: transparent !important;
     box-shadow: none !important;
+    outline: none !important;
+  }
+  .editable-field.handwritten {
+    border-bottom: none !important;
   }
 }
