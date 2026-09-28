@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniDoc Studio - Online Document, PDF & Image Editor</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Caveat:wght@600&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+  
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  
+  <!-- Mammoth.js (DOCX to HTML) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="min-h-screen flex flex-col bg-slate-100">
+
+  <!-- Top Navigation Header -->
+  <header class="no-print bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logo & Title -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white text-lg font-bold shadow-md shadow-blue-500/20">
+            <i class="fa-solid fa-file-pen"></i>
+          </div>
+          <div>
+            <h1 class="text-lg font-bold text-slate-900 leading-tight">OmniDoc Studio</h1>
+            <p class="text-xs text-slate-500 font-medium">Universal DOCX, PDF & Image Suite</p>
+          </div>
+        </div>
+
+        <!-- Editor Modes Tabs -->
+        <nav class="flex space-x-1 sm:space-x-4 border-b border-transparent">
+          <button class="nav-tab px-3 py-2 text-sm font-semibold border-b-2 text-blue-600 border-blue-600 transition-colors" data-tab="cert">
+            <i class="fa-solid fa-file-medical mr-1.5"></i> Certificate
+          </button>
+          <button class="nav-tab px-3 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-900 transition-colors" data-tab="pdf">
+            <i class="fa-solid fa-file-pdf mr-1.5 text-red-500"></i> PDF Editor
+          </button>
+          <button class="nav-tab px-3 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-900 transition-colors" data-tab="docx">
+            <i class="fa-solid fa-file-word mr-1.5 text-blue-500"></i> Word DOCX
+          </button>
+          <button class="nav-tab px-3 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-900 transition-colors" data-tab="image">
+            <i class="fa-solid fa-image mr-1.5 text-emerald-500"></i> Image & Scan
+          </button>
+        </nav>
+
+        <!-- Right Quick Actions -->
+        <div class="flex items-center gap-2">
+          <button onclick="openSignatureModal('cert')" class="tool-btn text-xs font-semibold text-slate-700 hover:bg-slate-100">
+            <i class="fa-solid fa-signature text-blue-600"></i> Digital Sign
+          </button>
+          <button onclick="window.print()" class="tool-btn tool-btn-primary text-xs font-semibold">
+            <i class="fa-solid fa-print"></i> Print / PDF
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: CERTIFICATE & TEMPLATE EDITOR      -->
+    <!-- ========================================== -->
+    <div id="cert-tab" class="tab-panel flex flex-col items-center">
+      
+      <!-- Sub-toolbar -->
+      <div class="no-print w-full max-w-[760px] flex items-center justify-between bg-white px-4 py-2.5 rounded-lg border border-slate-200 mb-6 shadow-sm">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Template:</span>
+          <span class="text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">Medical Sick Leave</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="app.certEditor.reset()" class="tool-btn text-xs">
+            <i class="fa-solid fa-arrow-rotate-left"></i> Reset Fields
+          </button>
+          <button onclick="openSignatureModal('cert')" class="tool-btn text-xs">
+            <i class="fa-solid fa-pen-nib text-blue-600"></i> Draw Signature
+          </button>
+          <button onclick="window.print()" class="tool-btn tool-btn-primary text-xs">
+            <i class="fa-solid fa-download"></i> Save as PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- Certificate Paper Sheet -->
+      <div id="cert-sheet" class="paper-sheet w-full max-w-[760px] p-10 sm:p-14 border border-slate-200 text-slate-900 leading-relaxed relative">
+        
+        <!-- Header -->
+        <div class="flex items-start gap-4 mb-8">
+          <img src="assets/logo.png" alt="Reliance Clinic Logo" class="w-14 h-auto mt-1 flex-shrink-0">
+          <div>
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Reliance Family Clinics</h2>
+            <div class="text-xs text-slate-800 leading-relaxed mt-1">
+              <p>Address: 113 Hakeem Dickson Link Rd, Lekki Phase 1, Lagos.</p>
+              <p>Phone: 02017001584</p>
+              <p>Email: hello@reliancefamilyclinics.com</p>
+              <p>Website: www.getreliancehealth.com/rfc/</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Salutation -->
+        <div class="font-extrabold text-sm mb-5 text-slate-900 uppercase tracking-wide">
+          TO WHOM IT MAY CONCERN,
+        </div>
+
+        <!-- Document Title -->
+        <div class="text-center font-extrabold text-base underline text-blue-600 tracking-wider mb-7">
+          SICK LEAVE CERTIFICATE
+        </div>
+
+        <!-- Body Paragraph 1 -->
+        <div class="text-sm leading-loose mb-1 text-slate-900">
+          This is to certify that Mr./Mrs./Ms.
+          <span class="editable-field min-w-[340px]" contenteditable="true" data-default="Noboth Ekene.">Noboth Ekene.</span>
+        </div>
+
+        <!-- Body Paragraph 2 -->
+        <div class="text-sm leading-loose mb-1 text-slate-900">
+          aged <span class="editable-field min-w-[36px] text-center" contenteditable="true" data-default="30">30</span>
+          years, was seen and evaluated at Reliance Family Clinics on the
+          <span class="editable-field min-w-[32px] text-center" contenteditable="true" data-default="30">30</span> day
+        </div>
+
+        <!-- Body Paragraph 3 -->
+        <div class="text-sm leading-loose mb-6 text-slate-900">
+          of <span class="editable-field min-w-[110px] text-center" contenteditable="true" data-default="September">September</span>,
+          <span class="editable-field min-w-[50px] text-center" contenteditable="true" data-default="2026">2026</span>
+        </div>
+
+        <!-- Diagnosis Clause -->
+        <div class="text-sm leading-loose mb-6 text-slate-900">
+          Following clinical assessment, the above-named individual has been diagnosed with a medical
+          condition that necessitates sick leave from
+          <span class="editable-field min-w-[110px] text-center" contenteditable="true" data-default="03/06/2026">03/06/2026</span> to
+          <span class="editable-field min-w-[110px] text-center" contenteditable="true" data-default="10/06/2026">10/06/2026</span> (inclusive).
+        </div>
+
+        <!-- Recovery Advisory -->
+        <div class="text-sm leading-loose mb-12 text-slate-900">
+          It is advised that the patient refrains from work or strenuous activities during this period to facilitate full recovery.
+        </div>
+
+        <!-- Footer / Signatures -->
+        <div class="flex items-baseline justify-between mt-12 pt-4">
+          <div class="flex items-baseline gap-2 text-sm text-slate-900">
+            <span class="whitespace-nowrap">Doctor's Name:</span>
+            <span class="editable-field min-w-[180px]" contenteditable="true" data-default="Dr Chiamanda">Dr Chiamanda</span>
+          </div>
+          <div class="flex items-baseline gap-2 text-sm text-slate-900">
+            <span class="whitespace-nowrap">Doctor's Signature:</span>
+            <div class="relative inline-block w-[190px] h-[2px] align-baseline">
+              <img id="cert-sig-img" src="assets/signature.png" alt="Signature" class="absolute left-0 -top-10 w-[190px] h-auto pointer-events-none select-none">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Editor Tips -->
+      <div class="no-print mt-6 flex items-center gap-6 text-xs text-slate-500">
+        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-400"></span> Hover to highlight editable fields</span>
+        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-500"></span> Green when editing</span>
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-print"></i> Ctrl + P automatically formats for PDF export</span>
+      </div>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: PDF EDITOR & ANNOTATOR             -->
+    <!-- ========================================== -->
+    <div id="pdf-tab" class="tab-panel hidden flex flex-col items-center">
+      
+      <!-- Upload Drop Zone -->
+      <div id="pdf-drop-zone" class="drop-zone w-full max-w-2xl py-16 my-8">
+        <i class="fa-solid fa-cloud-arrow-up text-4xl text-blue-500 mb-4"></i>
+        <h3 class="text-base font-bold text-slate-800 mb-1">Drag and drop your PDF here</h3>
+        <p class="text-xs text-slate-500 mb-4">or click to browse from your device</p>
+        <label for="pdf-upload-input" class="tool-btn tool-btn-primary cursor-pointer">
+          <i class="fa-solid fa-folder-open"></i> Choose PDF
+        </label>
+        <input type="file" id="pdf-upload-input" accept="application/pdf" class="hidden">
+      </div>
+
+      <!-- PDF Editor Workspace -->
+      <div id="pdf-editor-workspace" class="hidden w-full flex flex-col items-center">
+        
+        <!-- PDF Toolbar -->
+        <div class="w-full max-w-4xl bg-white p-3 rounded-lg border border-slate-200 mb-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
+          
+          <div class="flex items-center gap-1">
+            <button onclick="app.pdfEditor.setTool('select')" class="tool-btn pdf-tool-btn active" data-tool="select" title="Select">
+              <i class="fa-solid fa-arrow-pointer"></i>
+            </button>
+            <button onclick="app.pdfEditor.setTool('text')" class="tool-btn pdf-tool-btn" data-tool="text" title="Add Text">
+              <i class="fa-solid fa-font"></i> Text
+            </button>
+            <button onclick="app.pdfEditor.setTool('whiteout')" class="tool-btn pdf-tool-btn" data-tool="whiteout" title="Whiteout Box (Eraser)">
+              <i class="fa-solid fa-eraser"></i> Whiteout
+            </button>
+            <button onclick="app.pdfEditor.setTool('draw')" class="tool-btn pdf-tool-btn" data-tool="draw" title="Pen">
+              <i class="fa-solid fa-pen"></i> Pen
+            </button>
+            <button onclick="openSignatureModal('pdf')" class="tool-btn" title="Add Signature">
+              <i class="fa-solid fa-signature text-blue-600"></i> Stamp Signature
+            </button>
+            <button onclick="app.pdfEditor.clearAnnotations()" class="tool-btn text-red-600" title="Clear Page">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+
+          <!-- Page Controls -->
+          <div class="flex items-center gap-2 text-xs font-semibold text-slate-600">
+            <button onclick="app.pdfEditor.prevPage()" class="tool-btn px-2"><i class="fa-solid fa-chevron-left"></i></button>
+            <span>Page <span id="pdf-current-page">1</span> of <span id="pdf-page-count">1</span></span>
+            <button onclick="app.pdfEditor.nextPage()" class="tool-btn px-2"><i class="fa-solid fa-chevron-right"></i></button>
+            
+            <div class="h-4 w-px bg-slate-300 mx-1"></div>
+            
+            <button onclick="app.pdfEditor.zoomOut()" class="tool-btn px-2"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+            <button onclick="app.pdfEditor.zoomIn()" class="tool-btn px-2"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+          </div>
+
+          <!-- Download Action -->
+          <div>
+            <button onclick="app.pdfEditor.downloadEditedPDF()" class="tool-btn tool-btn-primary">
+              <i class="fa-solid fa-download"></i> Save Edited PDF
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Canvas Container -->
+        <div id="pdf-viewport-container" class="canvas-wrapper w-full">
+          <div class="pdf-page-container">
+            <canvas id="pdf-base-canvas"></canvas>
+            <canvas id="pdf-annot-canvas" class="annotation-layer"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: WORD DOCX EDITOR                    -->
+    <!-- ========================================== -->
+    <div id="docx-tab" class="tab-panel hidden flex flex-col items-center">
+      
+      <!-- Upload Drop Zone -->
+      <div id="docx-drop-zone" class="drop-zone w-full max-w-2xl py-16 my-8">
+        <i class="fa-solid fa-file-word text-4xl text-blue-600 mb-4"></i>
+        <h3 class="text-base font-bold text-slate-800 mb-1">Drag and drop your Word (.docx) file</h3>
+        <p class="text-xs text-slate-500 mb-4">Convert & edit your DOCX right in your browser</p>
+        <label for="docx-upload-input" class="tool-btn tool-btn-primary cursor-pointer">
+          <i class="fa-solid fa-folder-open"></i> Choose DOCX
+        </label>
+        <input type="file" id="docx-upload-input" accept=".docx,.doc" class="hidden">
+      </div>
+
+      <!-- DOCX Workspace -->
+      <div id="docx-editor-workspace" class="hidden w-full max-w-4xl flex flex-col items-center">
+        
+        <!-- Rich Text Toolbar -->
+        <div class="w-full bg-white p-2.5 rounded-lg border border-slate-200 mb-4 shadow-sm flex flex-wrap items-center justify-between gap-2">
+          
+          <div class="flex items-center gap-1 flex-wrap">
+            <button onclick="app.docxEditor.execCmd('bold')" class="tool-btn px-2.5" title="Bold"><i class="fa-solid fa-bold"></i></button>
+            <button onclick="app.docxEditor.execCmd('italic')" class="tool-btn px-2.5" title="Italic"><i class="fa-solid fa-italic"></i></button>
+            <button onclick="app.docxEditor.execCmd('underline')" class="tool-btn px-2.5" title="Underline"><i class="fa-solid fa-underline"></i></button>
+            <button onclick="app.docxEditor.execCmd('strikeThrough')" class="tool-btn px-2.5" title="Strikethrough"><i class="fa-solid fa-strikethrough"></i></button>
+            
+            <div class="h-4 w-px bg-slate-300 mx-1"></div>
+
+            <button onclick="app.docxEditor.execCmd('formatBlock', '<h1>')" class="tool-btn text-xs font-bold">H1</button>
+            <button onclick="app.docxEditor.execCmd('formatBlock', '<h2>')" class="tool-btn text-xs font-bold">H2</button>
+            <button onclick="app.docxEditor.execCmd('formatBlock', '<p>')" class="tool-btn text-xs">P</button>
+
+            <div class="h-4 w-px bg-slate-300 mx-1"></div>
+
+            <button onclick="app.docxEditor.execCmd('insertUnorderedList')" class="tool-btn px-2.5" title="Bullet List"><i class="fa-solid fa-list-ul"></i></button>
+            <button onclick="app.docxEditor.execCmd('insertOrderedList')" class="tool-btn px-2.5" title="Numbered List"><i class="fa-solid fa-list-ol"></i></button>
+            <button onclick="app.docxEditor.execCmd('justifyLeft')" class="tool-btn px-2.5"><i class="fa-solid fa-align-left"></i></button>
+            <button onclick="app.docxEditor.execCmd('justifyCenter')" class="tool-btn px-2.5"><i class="fa-solid fa-align-center"></i></button>
+            <button onclick="app.docxEditor.execCmd('justifyRight')" class="tool-btn px-2.5"><i class="fa-solid fa-align-right"></i></button>
+
+            <div class="h-4 w-px bg-slate-300 mx-1"></div>
+
+            <button onclick="openSignatureModal('docx')" class="tool-btn text-xs font-semibold">
+              <i class="fa-solid fa-signature text-blue-600"></i> Insert Signature
+            </button>
+          </div>
+
+          <!-- Document Filename & Export -->
+          <div class="flex items-center gap-2">
+            <span id="docx-filename" class="text-xs font-medium text-slate-500 truncate max-w-[140px]">document.docx</span>
+            <button onclick="app.docxEditor.downloadHTML()" class="tool-btn text-xs">
+              <i class="fa-solid fa-code"></i> HTML
+            </button>
+            <button onclick="app.docxEditor.printOrSavePDF()" class="tool-btn tool-btn-primary text-xs">
+              <i class="fa-solid fa-download"></i> Save as PDF
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Rich Text Document Paper -->
+        <div class="paper-sheet w-full p-12 sm:p-16 border border-slate-200">
+          <div id="docx-editor-content" class="wysiwyg-content" contenteditable="true"></div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: IMAGE & SCAN EDITOR                 -->
+    <!-- ========================================== -->
+    <div id="image-tab" class="tab-panel hidden flex flex-col items-center">
+      
+      <!-- Upload Drop Zone -->
+      <div id="image-drop-zone" class="drop-zone w-full max-w-2xl py-16 my-8">
+        <i class="fa-solid fa-image text-4xl text-emerald-500 mb-4"></i>
+        <h3 class="text-base font-bold text-slate-800 mb-1">Drag and drop your image / document scan</h3>
+        <p class="text-xs text-slate-500 mb-4">PNG, JPG, JPEG, WebP supported</p>
+        <label for="image-upload-input" class="tool-btn tool-btn-primary cursor-pointer">
+          <i class="fa-solid fa-folder-open"></i> Choose Image
+        </label>
+        <input type="file" id="image-upload-input" accept="image/*" class="hidden">
+      </div>
+
+      <!-- Image Workspace -->
+      <div id="image-editor-workspace" class="hidden w-full max-w-5xl flex flex-col items-center">
+        
+        <!-- Image Toolbar -->
+        <div class="w-full bg-white p-3 rounded-lg border border-slate-200 mb-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
+          
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <button onclick="app.imageEditor.setTool('select')" class="tool-btn img-tool-btn active" data-tool="select" title="Select">
+              <i class="fa-solid fa-arrow-pointer"></i>
+            </button>
+            <button onclick="app.imageEditor.setTool('whiteout')" class="tool-btn img-tool-btn" data-tool="whiteout" title="Whiteout Box (Eraser)">
+              <i class="fa-solid fa-eraser"></i> Whiteout Box
+            </button>
+            <button onclick="app.imageEditor.setTool('text')" class="tool-btn img-tool-btn" data-tool="text" title="Text Overlay">
+              <i class="fa-solid fa-font"></i> Text Stamp
+            </button>
+            <button onclick="app.imageEditor.setTool('draw')" class="tool-btn img-tool-btn" data-tool="draw" title="Pen Draw">
+              <i class="fa-solid fa-pen"></i> Pen
+            </button>
+            <button onclick="openSignatureModal('image')" class="tool-btn" title="Add Signature">
+              <i class="fa-solid fa-signature text-blue-600"></i> Signature
+            </button>
+            
+            <div class="h-4 w-px bg-slate-300 mx-1"></div>
+
+            <button onclick="app.imageEditor.rotate90()" class="tool-btn px-2.5" title="Rotate 90°">
+              <i class="fa-solid fa-rotate-right"></i> Rotate
+            </button>
+            <button onclick="app.imageEditor.undo()" class="tool-btn px-2.5" title="Undo">
+              <i class="fa-solid fa-undo"></i> Undo
+            </button>
+          </div>
+
+          <!-- Download Action -->
+          <div class="flex items-center gap-2">
+            <button onclick="app.imageEditor.downloadImage('png')" class="tool-btn text-xs">
+              <i class="fa-solid fa-file-image"></i> Download PNG
+            </button>
+            <button onclick="app.imageEditor.downloadPDF()" class="tool-btn tool-btn-primary text-xs">
+              <i class="fa-solid fa-file-pdf"></i> Export as PDF
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Canvas Container -->
+        <div class="canvas-wrapper w-full bg-slate-200/60 rounded-xl border border-slate-300 p-4">
+          <canvas id="image-editor-canvas" class="paper-sheet"></canvas>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- DIGITAL SIGNATURE MODAL                    -->
+  <!-- ========================================== -->
+  <div id="signature-modal" class="no-print hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 flex flex-col">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-signature text-blue-600 text-lg"></i>
+          <h3 class="font-bold text-slate-800 text-base">Draw Digital Signature</h3>
+        </div>
+        <button onclick="closeSignatureModal()" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="my-4">
+        <p class="text-xs text-slate-500 mb-2">Draw your signature with mouse, stylus, or touchscreen:</p>
+        <div class="border-2 border-dashed border-slate-300 rounded-xl overflow-hidden bg-slate-50 flex justify-center">
+          <canvas id="signature-canvas" class="cursor-crosshair"></canvas>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-2">
+        <button onclick="app.sigPad.clear()" class="tool-btn text-xs text-red-600 hover:bg-red-50">
+          <i class="fa-solid fa-eraser"></i> Clear
+        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="closeSignatureModal()" class="tool-btn text-xs">Cancel</button>
+          <button onclick="applySignature()" class="tool-btn tool-btn-primary text-xs font-semibold">
+            <i class="fa-solid fa-check"></i> Apply Signature
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Application Modules Scripts -->
+  <script src="js/signature.js"></script>
+  <script src="js/cert-editor.js"></script>
+  <script src="js/pdf-editor.js"></script>
+  <script src="js/docx-editor.js"></script>
+  <script src="js/image-editor.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
