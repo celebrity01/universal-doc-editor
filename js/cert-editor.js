@@ -62,14 +62,30 @@ class CertificateEditor {
     editables.forEach(el => {
       el.setAttribute('spellcheck', 'false');
 
-      // Auto-select on focus for single-line editable fields
+      // Auto-select on focus for all editable elements (decoupled from mouseup collapse)
+      let isFocusing = false;
       el.addEventListener('focus', () => {
-        if (!el.classList.contains('editable-block')) {
-          const range = document.createRange();
-          range.selectNodeContents(el);
-          const sel = window.getSelection();
-          sel.removeAllRanges();
-          sel.addRange(range);
+        isFocusing = true;
+        setTimeout(() => {
+          try {
+            const range = document.createRange();
+            range.selectNodeContents(el);
+            const sel = window.getSelection();
+            if (sel) {
+              sel.removeAllRanges();
+              sel.addRange(range);
+            }
+          } catch (err) {
+            // ignore range selection errors if element unmounted
+          }
+          isFocusing = false;
+        }, 10);
+      });
+
+      // Prevent mouseup from immediately collapsing the selection when focus was just triggered
+      el.addEventListener('mouseup', (e) => {
+        if (isFocusing) {
+          e.preventDefault();
         }
       });
 
@@ -190,7 +206,7 @@ class CertificateEditor {
               </div>
             </div>
             <div class="text-right text-xs text-slate-500">
-              <div class="font-bold text-slate-700 uppercase tracking-wider">Ref No:</div>
+              <div class="font-bold text-slate-700 uppercase tracking-wider editable-block" contenteditable="true">Ref No:</div>
               <div class="editable-field font-mono font-semibold" contenteditable="true">HC-2026-MED-8491</div>
             </div>
           </div>
@@ -200,7 +216,7 @@ class CertificateEditor {
             <h1 class="text-xl sm:text-2xl font-extrabold uppercase tracking-widest text-blue-700 underline underline-offset-8 editable-block" contenteditable="true">
               OFFICIAL MEDICAL CERTIFICATE
             </h1>
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-widest mt-2">CONFIDENTIAL MEDICAL REPORT</p>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-widest mt-2 editable-block" contenteditable="true">CONFIDENTIAL MEDICAL REPORT</p>
           </div>
 
           <!-- Salutation -->
@@ -211,25 +227,26 @@ class CertificateEditor {
           <!-- Certificate Body -->
           <div class="text-base leading-loose text-slate-800 space-y-4">
             <p>
-              This is to formally certify that Mr. / Mrs. / Ms. 
-              <span class="editable-field handwritten min-w-[280px] font-bold text-lg" contenteditable="true" data-field="patient">Aisha Bello</span>,
-              aged <span class="editable-field handwritten min-w-[40px] text-center font-bold text-lg" contenteditable="true" data-field="age">29</span> years,
-              was professionally examined and received clinical care at this medical facility on the
-              <span class="editable-field handwritten min-w-[40px] text-center font-bold text-lg" contenteditable="true" data-field="day">12th</span> day of
-              <span class="editable-field handwritten min-w-[100px] text-center font-bold text-lg" contenteditable="true" data-field="month">October</span>,
-              <span class="editable-field handwritten min-w-[60px] text-center font-bold text-lg" contenteditable="true" data-field="year">2026</span>.
+              <span class="editable-block" contenteditable="true">This is to formally certify that Mr. / Mrs. / Ms.</span> 
+              <span class="editable-field handwritten min-w-[280px] font-bold text-lg" contenteditable="true" data-field="patient">Aisha Bello</span><span class="editable-block" contenteditable="true">, aged</span> 
+              <span class="editable-field handwritten min-w-[40px] text-center font-bold text-lg" contenteditable="true" data-field="age">29</span> 
+              <span class="editable-block" contenteditable="true">years, was professionally examined and received clinical care at this medical facility on the</span> 
+              <span class="editable-field handwritten min-w-[40px] text-center font-bold text-lg" contenteditable="true" data-field="day">12th</span> 
+              <span class="editable-block" contenteditable="true">day of</span> 
+              <span class="editable-field handwritten min-w-[100px] text-center font-bold text-lg" contenteditable="true" data-field="month">October</span><span class="editable-block" contenteditable="true">,</span> 
+              <span class="editable-field handwritten min-w-[60px] text-center font-bold text-lg" contenteditable="true" data-field="year">2026</span><span class="editable-block" contenteditable="true">.</span>
             </p>
 
             <p>
-              Following thorough diagnostic tests and physical evaluation, the above patient was diagnosed with
-              <span class="editable-field min-w-[360px] font-semibold text-slate-900 border-b-2 border-slate-700" contenteditable="true" data-field="condition">severe acute respiratory tract infection with asthmatic exacerbation</span>,
-              which renders the individual physically incapacitated from attending employment or academic duties.
+              <span class="editable-block" contenteditable="true">Following thorough diagnostic tests and physical evaluation, the above patient was diagnosed with</span> 
+              <span class="editable-field min-w-[360px] font-semibold text-slate-900 border-b-2 border-slate-700" contenteditable="true" data-field="condition">severe acute respiratory tract infection with asthmatic exacerbation</span><span class="editable-block" contenteditable="true">, which renders the individual physically incapacitated from attending employment or academic duties.</span>
             </p>
 
             <p>
-              In order to achieve full medical rehabilitation, the patient has been strictly advised to observe complete rest and adhere to clinical medication from
-              <span class="editable-field handwritten min-w-[120px] text-center font-bold" contenteditable="true" data-field="from">12/10/2026</span> up to and including
-              <span class="editable-field handwritten min-w-[120px] text-center font-bold" contenteditable="true" data-field="to">19/10/2026</span>.
+              <span class="editable-block" contenteditable="true">In order to achieve full medical rehabilitation, the patient has been strictly advised to observe complete rest and adhere to clinical medication from</span> 
+              <span class="editable-field handwritten min-w-[120px] text-center font-bold" contenteditable="true" data-field="from">12/10/2026</span> 
+              <span class="editable-block" contenteditable="true">up to and including</span> 
+              <span class="editable-field handwritten min-w-[120px] text-center font-bold" contenteditable="true" data-field="to">19/10/2026</span><span class="editable-block" contenteditable="true">.</span>
             </p>
 
             <p class="editable-block" contenteditable="true">
@@ -240,7 +257,7 @@ class CertificateEditor {
           <!-- Doctor & Signature Footer -->
           <div class="flex items-end justify-between mt-16 pt-6 border-t border-slate-200">
             <div>
-              <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-1">Attending Physician:</div>
+              <div class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-1 editable-block" contenteditable="true">Attending Physician:</div>
               <div class="editable-field text-base font-bold text-slate-900 min-w-[200px]" contenteditable="true" data-field="doctor">Dr. Nneka Okafor, FWACS</div>
               <div class="text-xs text-slate-600 mt-1 editable-block" contenteditable="true">MD, Consultant Family Physician</div>
               <div class="text-xs text-slate-500 font-mono mt-0.5 editable-block" contenteditable="true">Lic. Reg: MDCN-2015-77291</div>
@@ -255,7 +272,7 @@ class CertificateEditor {
                 </span>
               </div>
               <div class="w-48 border-b-2 border-slate-900 mt-1"></div>
-              <div class="text-xs uppercase tracking-wider text-slate-700 font-bold mt-1.5">Official Signature & Stamp</div>
+              <div class="text-xs uppercase tracking-wider text-slate-700 font-bold mt-1.5 editable-block" contenteditable="true">Official Signature & Stamp</div>
             </div>
           </div>
 
@@ -279,7 +296,7 @@ class CertificateEditor {
               </div>
             </div>
             <div class="text-right">
-              <span class="inline-block bg-emerald-100 text-emerald-800 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">FIT FOR DUTY</span>
+              <span class="inline-block bg-emerald-100 text-emerald-800 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider editable-block" contenteditable="true">FIT FOR DUTY</span>
             </div>
           </div>
 
@@ -290,28 +307,28 @@ class CertificateEditor {
           </div>
 
           <div class="space-y-4 text-sm sm:text-base leading-relaxed text-slate-800">
-            <p>
+            <p class="editable-block" contenteditable="true">
               I hereby certify that I have conducted a comprehensive clinical examination and laboratory screening of:
             </p>
             <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-              <div><strong class="text-slate-600">Candidate Name:</strong> <span class="editable-field font-bold text-slate-900" contenteditable="true" data-field="patient">Ibrahim Adeleke</span></div>
-              <div><strong class="text-slate-600">Identification No:</strong> <span class="editable-field font-mono font-semibold" contenteditable="true">NIN-893049102</span></div>
-              <div><strong class="text-slate-600">Date of Birth / Age:</strong> <span class="editable-field font-semibold" contenteditable="true" data-field="age">14 May 1995 (31 yrs)</span></div>
-              <div><strong class="text-slate-600">Blood Pressure & Pulse:</strong> <span class="editable-field font-semibold" contenteditable="true">118/78 mmHg | 72 bpm</span></div>
-              <div><strong class="text-slate-600">Visual Acuity:</strong> <span class="editable-field font-semibold" contenteditable="true">6/6 Both Eyes (Normal)</span></div>
-              <div><strong class="text-slate-600">Chest X-Ray / ECG:</strong> <span class="editable-field font-semibold" contenteditable="true">Clear / Sinus Rhythm</span></div>
+              <div><strong class="text-slate-600 editable-field" contenteditable="true">Candidate Name:</strong> <span class="editable-field font-bold text-slate-900" contenteditable="true" data-field="patient">Ibrahim Adeleke</span></div>
+              <div><strong class="text-slate-600 editable-field" contenteditable="true">Identification No:</strong> <span class="editable-field font-mono font-semibold" contenteditable="true">NIN-893049102</span></div>
+              <div><strong class="text-slate-600 editable-field" contenteditable="true">Date of Birth / Age:</strong> <span class="editable-field font-semibold" contenteditable="true" data-field="age">14 May 1995 (31 yrs)</span></div>
+              <div><strong class="text-slate-600 editable-field" contenteditable="true">Blood Pressure & Pulse:</strong> <span class="editable-field font-semibold" contenteditable="true">118/78 mmHg | 72 bpm</span></div>
+              <div><strong class="text-slate-600 editable-field" contenteditable="true">Visual Acuity:</strong> <span class="editable-field font-semibold" contenteditable="true">6/6 Both Eyes (Normal)</span></div>
+              <div><strong class="text-slate-600 editable-field" contenteditable="true">Chest X-Ray / ECG:</strong> <span class="editable-field font-semibold" contenteditable="true">Clear / Sinus Rhythm</span></div>
             </div>
 
             <p class="pt-2">
-              Based on the clinical assessment, findings, and lab results, I certify that the candidate is in 
-              <strong class="text-emerald-700">SOUND PHYSICAL AND MENTAL HEALTH</strong>, free from contagious or chronic disabling illnesses, and is deemed 
-              <span class="editable-field min-w-[220px] font-bold text-emerald-800 underline" contenteditable="true">MEDICALLY FIT FOR EMPLOYMENT & TRAVEL</span>.
+              <span class="editable-block" contenteditable="true">Based on the clinical assessment, findings, and lab results, I certify that the candidate is in</span> 
+              <strong class="text-emerald-700 editable-field" contenteditable="true">SOUND PHYSICAL AND MENTAL HEALTH</strong><span class="editable-block" contenteditable="true">, free from contagious or chronic disabling illnesses, and is deemed</span> 
+              <span class="editable-field min-w-[220px] font-bold text-emerald-800 underline" contenteditable="true">MEDICALLY FIT FOR EMPLOYMENT & TRAVEL</span><span class="editable-block" contenteditable="true">.</span>
             </p>
           </div>
 
           <div class="flex items-end justify-between mt-16 pt-6 border-t border-slate-200">
             <div>
-              <div class="text-xs text-slate-500 font-bold uppercase">Authorized Medical Examiner:</div>
+              <div class="text-xs text-slate-500 font-bold uppercase editable-block" contenteditable="true">Authorized Medical Examiner:</div>
               <div class="editable-field text-base font-bold text-slate-900 mt-1" contenteditable="true" data-field="doctor">Dr. Emmanuel Davies, MBBS, FMCP</div>
               <div class="text-xs text-slate-500 editable-block" contenteditable="true">Director of Occupational Health Services</div>
             </div>
@@ -321,7 +338,7 @@ class CertificateEditor {
                 <img src="assets/signature.png" alt="Signature" class="cert-sig-img max-h-16 w-auto object-contain">
               </div>
               <div class="w-48 border-b-2 border-slate-800"></div>
-              <div class="text-xs uppercase text-slate-700 font-bold mt-1">Medical Seal & Signature</div>
+              <div class="text-xs uppercase text-slate-700 font-bold mt-1 editable-block" contenteditable="true">Medical Seal & Signature</div>
             </div>
           </div>
 
@@ -341,15 +358,15 @@ class CertificateEditor {
               <p class="text-xs text-slate-500 editable-block" contenteditable="true">billing@apexhealth.org | +1 (800) 555-0199</p>
             </div>
             <div class="text-right">
-              <h1 class="text-3xl font-black text-blue-600 tracking-wider">INVOICE</h1>
-              <div class="text-xs text-slate-500 mt-1 font-mono">Invoice #: <span class="editable-field font-bold" contenteditable="true">INV-2026-0492</span></div>
-              <div class="text-xs text-slate-500 font-mono">Date: <span class="editable-field" contenteditable="true">October 28, 2026</span></div>
+              <h1 class="text-3xl font-black text-blue-600 tracking-wider editable-block" contenteditable="true">INVOICE</h1>
+              <div class="text-xs text-slate-500 mt-1 font-mono"><span class="editable-field font-semibold" contenteditable="true">Invoice #:</span> <span class="editable-field font-bold" contenteditable="true">INV-2026-0492</span></div>
+              <div class="text-xs text-slate-500 font-mono"><span class="editable-field font-semibold" contenteditable="true">Date:</span> <span class="editable-field" contenteditable="true">October 28, 2026</span></div>
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-8 mb-8 text-xs sm:text-sm">
             <div>
-              <span class="font-bold text-slate-500 uppercase tracking-wider block mb-1">Billed To:</span>
+              <span class="font-bold text-slate-500 uppercase tracking-wider block mb-1 editable-block" contenteditable="true">Billed To:</span>
               <div class="editable-block font-semibold text-slate-800" contenteditable="true">
                 Acme Global Enterprise Ltd.<br>
                 Attn: Human Resources & Medical Board<br>
@@ -357,7 +374,7 @@ class CertificateEditor {
               </div>
             </div>
             <div>
-              <span class="font-bold text-slate-500 uppercase tracking-wider block mb-1">Payment Details:</span>
+              <span class="font-bold text-slate-500 uppercase tracking-wider block mb-1 editable-block" contenteditable="true">Payment Details:</span>
               <div class="editable-block text-slate-700" contenteditable="true">
                 Bank: First Global Trust<br>
                 Account Name: Apex Health LLC<br>
@@ -371,10 +388,10 @@ class CertificateEditor {
           <table class="w-full text-left text-sm mb-8 border border-slate-200 rounded-lg overflow-hidden">
             <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-xs">
               <tr>
-                <th class="p-3">Description</th>
-                <th class="p-3 text-center w-20">Qty</th>
-                <th class="p-3 text-right w-28">Rate</th>
-                <th class="p-3 text-right w-28">Amount</th>
+                <th class="p-3 editable-field" contenteditable="true">Description</th>
+                <th class="p-3 text-center w-20 editable-field" contenteditable="true">Qty</th>
+                <th class="p-3 text-right w-28 editable-field" contenteditable="true">Rate</th>
+                <th class="p-3 text-right w-28 editable-field" contenteditable="true">Amount</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-200">
@@ -382,32 +399,32 @@ class CertificateEditor {
                 <td class="p-3 editable-block" contenteditable="true">Comprehensive Executive Health Evaluation & Diagnostic Screening</td>
                 <td class="p-3 text-center editable-field" contenteditable="true">1</td>
                 <td class="p-3 text-right editable-field" contenteditable="true">$450.00</td>
-                <td class="p-3 text-right font-semibold">$450.00</td>
+                <td class="p-3 text-right font-semibold editable-field" contenteditable="true">$450.00</td>
               </tr>
               <tr>
                 <td class="p-3 editable-block" contenteditable="true">Laboratory Pathology Profiling (Full Blood Count, Metabolic Panel, Lipid Screen)</td>
                 <td class="p-3 text-center editable-field" contenteditable="true">1</td>
                 <td class="p-3 text-right editable-field" contenteditable="true">$180.00</td>
-                <td class="p-3 text-right font-semibold">$180.00</td>
+                <td class="p-3 text-right font-semibold editable-field" contenteditable="true">$180.00</td>
               </tr>
               <tr>
                 <td class="p-3 editable-block" contenteditable="true">Medical Fitness Certification & Legal Compliance Attestation</td>
                 <td class="p-3 text-center editable-field" contenteditable="true">1</td>
                 <td class="p-3 text-right editable-field" contenteditable="true">$120.00</td>
-                <td class="p-3 text-right font-semibold">$120.00</td>
+                <td class="p-3 text-right font-semibold editable-field" contenteditable="true">$120.00</td>
               </tr>
             </tbody>
             <tfoot class="bg-slate-50 border-t border-slate-200 text-slate-800">
               <tr>
-                <td colspan="3" class="p-3 text-right font-bold">Subtotal:</td>
-                <td class="p-3 text-right font-bold">$750.00</td>
+                <td colspan="3" class="p-3 text-right font-bold editable-field" contenteditable="true">Subtotal:</td>
+                <td class="p-3 text-right font-bold editable-field" contenteditable="true">$750.00</td>
               </tr>
               <tr>
-                <td colspan="3" class="p-3 text-right font-bold">Tax / VAT (0% Exempt):</td>
-                <td class="p-3 text-right font-bold">$0.00</td>
+                <td colspan="3" class="p-3 text-right font-bold editable-field" contenteditable="true">Tax / VAT (0% Exempt):</td>
+                <td class="p-3 text-right font-bold editable-field" contenteditable="true">$0.00</td>
               </tr>
               <tr class="text-base text-blue-700 font-extrabold bg-blue-50/50">
-                <td colspan="3" class="p-3 text-right">Total Due:</td>
+                <td colspan="3" class="p-3 text-right editable-field" contenteditable="true">Total Due:</td>
                 <td class="p-3 text-right editable-field" contenteditable="true">$750.00</td>
               </tr>
             </tfoot>
@@ -415,15 +432,15 @@ class CertificateEditor {
 
           <div class="flex items-end justify-between pt-6 border-t border-slate-200">
             <div class="text-xs text-slate-500">
-              <p class="font-bold text-slate-700">Thank you for your business!</p>
-              <p class="mt-0.5">Inquiries? Contact support@apexhealth.org</p>
+              <p class="font-bold text-slate-700 editable-block" contenteditable="true">Thank you for your business!</p>
+              <p class="mt-0.5 editable-block" contenteditable="true">Inquiries? Contact support@apexhealth.org</p>
             </div>
             <div class="text-center">
               <div class="w-40 h-14 relative flex items-center justify-center cursor-pointer group" onclick="openSignatureModal('cert')">
                 <img src="assets/signature.png" alt="Signature" class="cert-sig-img max-h-14 w-auto object-contain">
               </div>
               <div class="w-40 border-b border-slate-800"></div>
-              <div class="text-xs uppercase text-slate-600 font-semibold mt-1">Authorized Signatory</div>
+              <div class="text-xs uppercase text-slate-600 font-semibold mt-1 editable-block" contenteditable="true">Authorized Signatory</div>
             </div>
           </div>
 
@@ -440,9 +457,9 @@ class CertificateEditor {
             <div class="w-16 h-16 mx-auto rounded-full bg-amber-500/10 border-2 border-amber-500 flex items-center justify-center text-amber-600 text-3xl mb-4">
               <i class="fa-solid fa-award"></i>
             </div>
-            <h3 class="text-xs uppercase font-sans tracking-[0.3em] font-extrabold text-amber-700 mb-2">INTERNATIONAL INSTITUTE OF MEDICAL SCIENCES</h3>
-            <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-wider uppercase mb-1">CERTIFICATE OF EXCELLENCE</h1>
-            <p class="text-xs font-sans text-slate-500 tracking-widest uppercase">THIS CERTIFICATE IS PROUDLY PRESENTED TO</p>
+            <h3 class="text-xs uppercase font-sans tracking-[0.3em] font-extrabold text-amber-700 mb-2 editable-block" contenteditable="true">INTERNATIONAL INSTITUTE OF MEDICAL SCIENCES</h3>
+            <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-wider uppercase mb-1 editable-block" contenteditable="true">CERTIFICATE OF EXCELLENCE</h1>
+            <p class="text-xs font-sans text-slate-500 tracking-widest uppercase editable-block" contenteditable="true">THIS CERTIFICATE IS PROUDLY PRESENTED TO</p>
           </div>
 
           <div class="my-8">
@@ -461,7 +478,7 @@ class CertificateEditor {
             <div class="text-center">
               <div class="text-xs font-bold text-slate-700 editable-field" contenteditable="true">October 28, 2026</div>
               <div class="w-36 border-b border-slate-700 mt-2"></div>
-              <div class="text-xs text-slate-500 uppercase tracking-wider font-semibold mt-1">Date</div>
+              <div class="text-xs text-slate-500 uppercase tracking-wider font-semibold mt-1 editable-block" contenteditable="true">Date</div>
             </div>
 
             <div class="text-center">
@@ -469,7 +486,7 @@ class CertificateEditor {
                 <img src="assets/signature.png" alt="Signature" class="cert-sig-img max-h-12 w-auto object-contain">
               </div>
               <div class="w-36 border-b border-slate-700"></div>
-              <div class="text-xs text-slate-500 uppercase tracking-wider font-semibold mt-1">Board Director</div>
+              <div class="text-xs text-slate-500 uppercase tracking-wider font-semibold mt-1 editable-block" contenteditable="true">Board Director</div>
             </div>
           </div>
 

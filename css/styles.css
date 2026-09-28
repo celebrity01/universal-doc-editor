@@ -109,6 +109,65 @@ body {
   outline: 2px solid #16a34a;
 }
 
+/* Forms & Certificates (#cert-sheet) Universal Text Editing & Hover Affordances (M1) */
+#cert-sheet [contenteditable="true"] {
+  cursor: text;
+  transition: background-color 0.15s ease, outline 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+#cert-sheet [contenteditable="true"]:hover {
+  background-color: #fef9c3;
+  outline: 1.5px dashed #ca8a04;
+}
+
+#cert-sheet [contenteditable="true"]:focus {
+  background-color: #f0fdf4;
+  outline: 2px solid #059669;
+}
+
+#cert-sheet .editable-field:hover {
+  background-color: #fef3c7;
+  border-bottom: 1.5px solid #d97706;
+  box-shadow: 0 0 0 2px #fde68a;
+  outline: none;
+}
+
+#cert-sheet .editable-field:focus {
+  background-color: #ecfdf5;
+  border-bottom: 2px solid #059669;
+  box-shadow: 0 0 0 3px #a7f3d0;
+  outline: none;
+}
+
+#cert-sheet th.editable-field,
+#cert-sheet th.editable-block,
+#cert-sheet td.editable-field,
+#cert-sheet td.editable-block {
+  display: table-cell;
+}
+
+#cert-sheet th.editable-field,
+#cert-sheet td.editable-field {
+  border-bottom-width: 0px;
+}
+
+#cert-sheet th.editable-field:hover,
+#cert-sheet td.editable-field:hover {
+  outline: 1.5px dashed #ca8a04;
+  box-shadow: none;
+}
+
+#cert-sheet th.editable-field:focus,
+#cert-sheet td.editable-field:focus {
+  outline: 2px solid #059669;
+  box-shadow: none;
+}
+
+#cert-sheet span.editable-block {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
 /* Toolbar Buttons */
 .tool-btn {
   display: inline-flex;
@@ -322,6 +381,95 @@ body {
 .wysiwyg-content table { border-collapse: collapse; width: 100%; margin-bottom: 16px; }
 .wysiwyg-content td, .wysiwyg-content th { border: 1px solid #cbd5e1; padding: 8px 12px; }
 .wysiwyg-content th { background-color: #f8fafc; font-weight: 600; }
+
+/* Word DOCX & Rich Text Direct Click-to-Edit Hover & Focus Affordances (F13) */
+.wysiwyg-content h1:hover,
+.wysiwyg-content h2:hover,
+.wysiwyg-content h3:hover,
+.wysiwyg-content p:hover,
+.wysiwyg-content li:hover {
+  outline: 1.5px dashed #93c5fd;
+  background-color: rgba(239, 246, 255, 0.4);
+  border-radius: 4px;
+  cursor: text;
+  transition: background-color 0.15s ease, outline-color 0.15s ease;
+}
+
+.wysiwyg-content td:hover,
+.wysiwyg-content th:hover {
+  outline: 1.5px dashed #3b82f6;
+  background-color: #eff6ff;
+  cursor: text;
+  transition: background-color 0.15s ease, outline-color 0.15s ease;
+}
+
+.wysiwyg-content h1:focus,
+.wysiwyg-content h2:focus,
+.wysiwyg-content h3:focus,
+.wysiwyg-content p:focus,
+.wysiwyg-content li:focus {
+  outline: 2px solid #2563eb;
+  background-color: transparent;
+}
+
+.wysiwyg-content td:focus,
+.wysiwyg-content th:focus {
+  outline: 2px solid #2563eb;
+  background-color: #f0fdf4;
+}
+
+/* Contextual Floating Formatting Toolbar (F15) */
+#docx-floating-toolbar {
+  position: absolute;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: #0f172a;
+  color: #ffffff;
+  padding: 4px 6px;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  pointer-events: auto;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+#docx-floating-toolbar.hidden {
+  display: none !important;
+}
+
+#docx-floating-toolbar button {
+  background: transparent;
+  color: #f1f5f9;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.12s ease;
+  user-select: none;
+}
+
+#docx-floating-toolbar button:hover {
+  background: #334155;
+  color: #38bdf8;
+  transform: translateY(-1px);
+}
+
+#docx-floating-toolbar button.active {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3);
+}
+
+#docx-floating-toolbar button:active {
+  transform: translateY(0);
+}
+
 
 /* Template Selector Cards */
 .template-card {

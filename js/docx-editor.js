@@ -12,7 +12,10 @@ class DocxEditor {
     this.editorContainer = document.getElementById('docx-editor-content');
     this.dropZone = document.getElementById('docx-drop-zone');
     this.workspace = document.getElementById('docx-editor-workspace');
+    this.floatingToolbar = document.getElementById('docx-floating-toolbar');
     this.initEvents();
+    this.initFloatingToolbar();
+    this.bindTableEvents();
   }
 
   initEvents() {
@@ -38,6 +41,20 @@ class DocxEditor {
         }
       });
     }
+
+    if (this.editorContainer) {
+      // Table navigation and keyboard handling
+      this.editorContainer.addEventListener('keydown', (e) => this.handleTableKeydown(e));
+
+      // Cursor and selection monitoring on editor
+      this.editorContainer.addEventListener('keyup', () => this.updateSelectionAndFloatingToolbar());
+      this.editorContainer.addEventListener('mouseup', () => this.updateSelectionAndFloatingToolbar());
+      this.editorContainer.addEventListener('input', () => this.updateSelectionAndFloatingToolbar());
+      this.editorContainer.addEventListener('focus', () => this.updateSelectionAndFloatingToolbar());
+    }
+
+    // Active toolbar state synchronization on selectionchange (F14 & F15)
+    document.addEventListener('selectionchange', () => this.updateSelectionAndFloatingToolbar());
   }
 
   async loadFile(file) {
@@ -55,6 +72,8 @@ class DocxEditor {
         this.dropZone.classList.add('hidden');
         this.workspace.classList.remove('hidden');
         document.getElementById('docx-filename').textContent = file.name;
+        this.bindTableEvents();
+        this.updateToolbarState();
       } catch (err) {
         console.error('Mammoth DOCX parse error:', err);
         alert('Could not convert DOCX file: ' + err.message);
@@ -199,11 +218,308 @@ class DocxEditor {
     this.dropZone.classList.add('hidden');
     this.workspace.classList.remove('hidden');
     document.getElementById('docx-filename').textContent = doc.title;
+    this.bindTableEvents();
+    this.updateToolbarState();
   }
 
   execCmd(command, value = null) {
     document.execCommand(command, false, value);
-    this.editorContainer.focus();
+    if (this.editorContainer) this.editorContainer.focus();
+    this.updateToolbarState();
+  }
+
+  initFloatingToolbar() {
+    let toolbar = document.getElementById('docx-floating-toolbar');
+    if (!toolbar) {
+      toolbar = document.createElement('div');
+      toolbar.id = 'docx-floating-toolbar';
+      toolbar.className = 'docx-floating-toolbar hidden';
+      toolbar.innerHTML = `
+        <button type="button" data-cmd="bold" title="Bold"><b>B</b></button>
+        <button type="button" data-cmd="italic" title="Italic"><i>I</i></button>
+        <button type="button" data-cmd="underline" title="Underline"><u>U</u></button>
+        <button type="button" data-cmd="formatBlock" data-val="h1" title="Heading 1">H1</button>
+        <button type="button" data-cmd="formatBlock" data-val="h2" title="Heading 2">H2</button>
+        <button type="button" data-cmd="removeFormat" title="Clear Formatting">✕</button>
+      `;
+      const target = this.workspace || document.body;
+      target.appendChild(toolbar);
+    }
+    this.floatingToolbar = toolbar;
+
+    // Prevent editor selection loss on mousedown
+    toolbar.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+    });
+
+    const buttons = toolbar.querySelectorAll('button');
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const cmd = btn.getAttribute('data-cmd') || 'bold';
+        const val = btn.getAttribute('data-val');
+        if (cmd === 'formatBlock') {
+          this.execCmd('formatBlock', val ? `<${val}>` : '<h1>');
+        } else {
+          this.execCmd(cmd, val || null);
+        }
+        this.updateToolbarState();
+      });
+    });
+  }
+
+  updateSelectionAndFloatingToolbar() {
+    this.updateToolbarState();
+
+    const floating = this.floatingToolbar || document.getElementById('docx-floating-toolbar');
+    if (!floating) return;
+
+    if (!window.getSelection) {
+      floating.classList.add('hidden');
+      floating.style.display = 'none';
+      return;
+    }
+
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) {
+      floating.classList.add('hidden');
+      floating.style.display = 'none';
+      return;
+    }
+
+    const text = typeof sel.toString === 'function' ? sel.toString().trim() : '';
+    if (!text || sel.isCollapsed === true) {
+      floating.classList.add('hidden');
+      floating.style.display = 'none';
+      return;
+    }
+
+    // Verify selection is within editor container
+    let isInside = false;
+    try {
+      const range = sel.getRangeAt(0);
+      let container = range.commonAncestorContainer || range.startContainer;
+      if (container && container.nodeType === 3) container = container.parentElement;
+      if (container && this.editorContainer) {
+        if (this.editorContainer === container || (this.editorContainer.contains && this.editorContainer.contains(container))) {
+          isInside = true;
+        } else if (container.closest && container.closest('#docx-editor-content')) {
+          isInside = true;
+        }
+      }
+    } catch (_) {
+      isInside = true;
+    }
+
+    if (!isInside) {
+      floating.classList.add('hidden');
+      floating.style.display = 'none';
+      return;
+    }
+
+    // Show floating toolbar and position near selection
+    floating.classList.remove('hidden');
+    floating.style.display = 'flex';
+
+    try {
+      const range = sel.getRangeAt(0);
+      if (range && typeof range.getBoundingClientRect === 'function') {
+        const rect = range.getBoundingClientRect();
+        if (rect && rect.top !== undefined) {
+          const top = Math.max(10, rect.top - 46 + (window.scrollY || 0));
+          const left = Math.max(10, rect.left + ((rect.width || 0) / 2) - 100 + (window.scrollX || 0));
+          floating.style.top = `${top}px`;
+          floating.style.left = `${left}px`;
+        }
+      }
+    } catch (_) {}
+  }
+
+  updateToolbarState() {
+    let blockTag = '';
+    try {
+      const val = document.queryCommandValue('formatBlock');
+      if (val) blockTag = String(val).toLowerCase().replace(/[<>]/g, '');
+    } catch (_) {}
+
+    if (!blockTag && window.getSelection) {
+      try {
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount > 0) {
+          const range = sel.getRangeAt(0);
+          let node = range.commonAncestorContainer || range.startContainer;
+          if (node && node.nodeType === 3) node = node.parentElement;
+          if (node && typeof node.closest === 'function') {
+            const block = node.closest('h1, h2, h3, p');
+            if (block) blockTag = block.tagName.toLowerCase();
+          } else if (node && node.tagName) {
+            blockTag = node.tagName.toLowerCase();
+          }
+        }
+      } catch (_) {}
+    }
+
+    const checkCmd = (cmd) => {
+      try {
+        return !!document.queryCommandState(cmd);
+      } catch (_) {
+        return false;
+      }
+    };
+
+    const isBold = checkCmd('bold');
+    const isItalic = checkCmd('italic');
+    const isUnderline = checkCmd('underline');
+    const isStrike = checkCmd('strikeThrough');
+    const isUl = checkCmd('insertUnorderedList');
+    const isOl = checkCmd('insertOrderedList');
+    const isLeft = checkCmd('justifyLeft');
+    const isCenter = checkCmd('justifyCenter');
+    const isRight = checkCmd('justifyRight');
+
+    const buttons = document.querySelectorAll('#docx-editor-workspace button, #docx-floating-toolbar button');
+    buttons.forEach((btn) => {
+      const cmd = (btn.getAttribute('data-cmd') || '').toLowerCase();
+      const val = (btn.getAttribute('data-val') || '').toLowerCase();
+      const title = (btn.getAttribute('title') || '').toLowerCase();
+      const text = (btn.textContent || '').trim().toLowerCase();
+
+      let active = false;
+      if (cmd === 'bold' || title === 'bold' || text === 'b') {
+        active = isBold;
+      } else if (cmd === 'italic' || title === 'italic' || text === 'i') {
+        active = isItalic;
+      } else if (cmd === 'underline' || title === 'underline' || text === 'u') {
+        active = isUnderline;
+      } else if (cmd === 'strikethrough' || title === 'strikethrough' || text === 's') {
+        active = isStrike;
+      } else if (cmd === 'insertunorderedlist' || title.includes('bullet')) {
+        active = isUl;
+      } else if (cmd === 'insertorderedlist' || title.includes('number')) {
+        active = isOl;
+      } else if (cmd === 'justifyleft' || title.includes('align left')) {
+        active = isLeft;
+      } else if (cmd === 'justifycenter' || title.includes('align center')) {
+        active = isCenter;
+      } else if (cmd === 'justifyright' || title.includes('align right')) {
+        active = isRight;
+      } else if ((cmd === 'formatblock' && val === 'h1') || cmd === 'h1' || text === 'h1' || title.includes('heading 1')) {
+        active = (blockTag === 'h1') || checkCmd('h1');
+      } else if ((cmd === 'formatblock' && val === 'h2') || cmd === 'h2' || text === 'h2' || title.includes('heading 2')) {
+        active = (blockTag === 'h2') || checkCmd('h2');
+      } else if ((cmd === 'formatblock' && val === 'p') || cmd === 'p' || text === 'p') {
+        active = (blockTag === 'p') || checkCmd('p');
+      }
+
+      if (active) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  }
+
+  handleTableKeydown(e) {
+    if (e.key !== 'Tab') return;
+
+    let cell = null;
+    if (e.target && typeof e.target.closest === 'function') {
+      cell = e.target.closest('td, th');
+    }
+    if (!cell && window.getSelection) {
+      try {
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount > 0) {
+          const node = sel.getRangeAt(0).startContainer;
+          if (node) {
+            cell = typeof node.closest === 'function' ? node.closest('td, th') : (node.parentElement && typeof node.parentElement.closest === 'function' ? node.parentElement.closest('td, th') : null);
+          }
+        }
+      } catch (_) {}
+    }
+
+    if (!cell) return;
+
+    e.preventDefault();
+    const table = cell.closest('table');
+    if (!table) return;
+
+    const allCells = Array.from(table.querySelectorAll('td, th'));
+    const currentIndex = allCells.indexOf(cell);
+    if (currentIndex === -1) return;
+
+    if (e.shiftKey) {
+      // Shift+Tab: Navigate to previous cell
+      if (currentIndex > 0) {
+        const prevCell = allCells[currentIndex - 1];
+        prevCell.focus();
+        this.moveCaretToEnd(prevCell);
+      }
+      // If currentIndex === 0, stay within table bounds on first cell
+    } else {
+      // Tab: Navigate to next cell or append new row on last cell (F16, T1.23, T2.16)
+      if (currentIndex < allCells.length - 1) {
+        const nextCell = allCells[currentIndex + 1];
+        nextCell.focus();
+        this.moveCaretToEnd(nextCell);
+      } else {
+        // Last cell in table! Append new row
+        const tr = cell.closest('tr');
+        const colCount = tr && tr.children && tr.children.length > 0
+          ? tr.children.length
+          : (table.querySelector('tr') ? table.querySelector('tr').children.length : 3);
+        const tbody = table.querySelector('tbody') || table;
+        const newRow = document.createElement('tr');
+        for (let i = 0; i < colCount; i++) {
+          const newCell = document.createElement('td');
+          newCell.style.border = '1px solid #cbd5e1';
+          newCell.style.padding = '8px';
+          newCell.textContent = '';
+          newRow.appendChild(newCell);
+        }
+        tbody.appendChild(newRow);
+        this.bindTableEvents();
+        const firstNewCell = newRow.querySelector('td') || newRow.children[0];
+        if (firstNewCell) {
+          firstNewCell.focus();
+          this.moveCaretToEnd(firstNewCell);
+        }
+      }
+    }
+  }
+
+  bindTableEvents() {
+    if (!this.editorContainer) return;
+    const tables = this.editorContainer.querySelectorAll('table');
+    tables.forEach((table) => {
+      const cells = table.querySelectorAll('td, th');
+      cells.forEach((cell) => {
+        if (!cell._docxKeydownBound) {
+          cell._docxKeydownBound = true;
+          cell.addEventListener('keydown', (e) => this.handleTableKeydown(e));
+        }
+      });
+      if (!table._docxKeydownBound) {
+        table._docxKeydownBound = true;
+        table.addEventListener('keydown', (e) => this.handleTableKeydown(e));
+      }
+    });
+  }
+
+  moveCaretToEnd(el) {
+    if (!el) return;
+    try {
+      if (typeof window.getSelection === 'function' && typeof document.createRange === 'function') {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        const sel = window.getSelection();
+        if (sel) {
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      }
+    } catch (_) {}
   }
 
   insertTable() {
@@ -226,6 +542,7 @@ class DocxEditor {
       </table>
     `;
     this.execCmd('insertHTML', tableHtml);
+    this.bindTableEvents();
   }
 
   insertSignature(dataUrl) {
