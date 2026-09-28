@@ -1,0 +1,186 @@
+/* OmniDoc Studio Custom Styles */
+
+:root {
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --bg-canvas: #f1f5f9;
+  --paper-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-canvas);
+  color: #1e293b;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Document Paper Sheet */
+.paper-sheet {
+  background: #ffffff;
+  box-shadow: var(--paper-shadow);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+/* Editable Fields */
+.editable-field {
+  display: inline-block;
+  border-bottom: 1.5px solid #000;
+  outline: none;
+  min-width: 24px;
+  padding: 0 4px 1px;
+  font-family: 'Segoe Script', 'Dancing Script', 'Caveat', cursive;
+  font-size: 15.5px;
+  color: #0f172a;
+  cursor: text;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.editable-field:hover {
+  background-color: #fef3c7;
+  box-shadow: 0 0 0 2px #f59e0b;
+  border-radius: 3px;
+}
+
+.editable-field:focus {
+  background-color: #dcfce7;
+  box-shadow: 0 0 0 2px #10b981;
+  border-radius: 3px;
+}
+
+/* Toolbar Buttons */
+.tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #334155;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.tool-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.tool-btn.active {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+}
+
+.tool-btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+.tool-btn-primary:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  color: #ffffff;
+}
+
+/* Canvas Overlay Container */
+.canvas-wrapper {
+  position: relative;
+  overflow: auto;
+  max-height: 80vh;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.pdf-page-container {
+  position: relative;
+  margin-bottom: 24px;
+  box-shadow: var(--paper-shadow);
+  background: white;
+}
+
+.annotation-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: auto;
+}
+
+/* Rich Text Editor */
+.wysiwyg-content {
+  min-height: 500px;
+  outline: none;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 16px;
+  line-height: 1.8;
+  color: #1e293b;
+}
+
+.wysiwyg-content h1 { font-size: 28px; font-weight: bold; margin-bottom: 16px; }
+.wysiwyg-content h2 { font-size: 22px; font-weight: bold; margin-bottom: 12px; }
+.wysiwyg-content h3 { font-size: 18px; font-weight: bold; margin-bottom: 8px; }
+.wysiwyg-content p { margin-bottom: 12px; }
+.wysiwyg-content ul { list-style-type: disc; margin-left: 24px; margin-bottom: 12px; }
+.wysiwyg-content ol { list-style-type: decimal; margin-left: 24px; margin-bottom: 12px; }
+.wysiwyg-content table { border-collapse: collapse; width: 100%; margin-bottom: 16px; }
+.wysiwyg-content td, .wysiwyg-content th { border: 1px solid #cbd5e1; padding: 8px 12px; }
+
+/* Drag and Drop Zone */
+.drop-zone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 40px 20px;
+  text-align: center;
+  transition: all 0.2s ease;
+  background: #f8fafc;
+  cursor: pointer;
+}
+
+.drop-zone:hover, .drop-zone.dragover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: white !important;
+    padding: 0 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .paper-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .editable-field:hover, .editable-field:focus {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+}
